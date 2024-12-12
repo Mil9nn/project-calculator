@@ -8,6 +8,7 @@ function subtract(num1, num2) {
 }
 
 function divide(num1, num2) {
+    if (num2 === 0) return 'Error'; // Handle division by zero
     return num1 / num2;
 }
 
@@ -20,7 +21,7 @@ function modulus(num1, num2) {
 }
 
 function operate(num1, operator, num2) {
-    return operator(num1, num2); // Return the result of the operation
+    return operator(num1, num2);
 }
 
 // DOM Manipulation
@@ -37,11 +38,16 @@ let result = null;
 // Utility function to map operators
 function getFunctionFromOperator(operatorSymbol) {
     switch (operatorSymbol) {
-        case 'fa-plus': return sum; // Font Awesome icon class for plus
-        case 'fa-minus': return subtract; // Font Awesome icon class for minus
-        case 'fa-xmark': return multiply; // Font Awesome icon class for multiplication
-        case 'fa-divide': return divide; // Font Awesome icon class for division
+        case 'fa-plus': return sum;
+        case '+': return sum; 
+        case 'fa-minus': return subtract; 
+        case '-': return subtract;
+        case 'fa-xmark': return multiply;
+        case '*': return multiply; 
+        case 'fa-divide': return divide;
+        case '/': return divide;
         case 'fa-percent': return modulus;
+        case '%': return modulus;
     }
 }
 
@@ -62,17 +68,16 @@ operators.forEach(operator => {
     operator.addEventListener("click", function() {
         if (display.textContent !== '') {
             if (num1 !== null && operatorOnDisplay) {
-                // Perform the previous calculation
+                
                 num2 = parseFloat(display.textContent);
                 result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
-
-                display.textContent = result; // Show result
-                num1 = result; // Update num1 with result
+                display.textContent = result;
+                num1 = result; 
             } else {
                 num1 = parseFloat(display.textContent); // First number
             }
 
-            // Get operator class from Font Awesome icon
+            
             operatorOnDisplay = this.querySelector('i').classList[1]; // Get the second class of <i> (icon class)
             display.textContent = ''; // Clear display for next input
         }
@@ -82,10 +87,9 @@ operators.forEach(operator => {
 // Evaluate button click event
 evaluate.addEventListener("click", function() {
     if (display.textContent !== '' && num1 !== null && operatorOnDisplay) {
-        num2 = parseFloat(display.textContent); // Capture the second number
+        num2 = parseFloat(display.textContent);
         result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
-
-        display.textContent = result; // Display the final result
+        display.textContent = result; 
         num1 = result; // Store the result for further operations
         operatorOnDisplay = null; // Reset the operator
     }
@@ -97,7 +101,56 @@ functions.forEach(func => {
     func.addEventListener("click", function() {
         if(this.textContent == "AC") {
             display.textContent = '';
+            num1 = null;
+            num2 = null;
+            operatorOnDisplay = null;
+        } else if (this.querySelector('.fa-delete-left')) {
+            display.textContent = display.textContent.slice(0, -1);
         }
     });
 });
+
+// KeyBoard Events...
+document.addEventListener("keydown", function(event) {
+    const key = event.key;
+
+    // Handle number and decimal point
+    if (!isNaN(key) || key === '.') {
+        display.textContent += key;
+    } 
+    // Handle operators
+    else if (['+', '-', '*', '/', '%'].includes(key)) {
+        handleOperator(key);
+    }
+    // Handle Enter
+    else if (key === 'Enter') {
+        if (num1 != null && operatorOnDisplay && display.textContent !== '') {
+            num2 = parseFloat(display.textContent);
+            result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
+            display.textContent = result;
+            num1 = result;
+            operatorOnDisplay = null;
+        }
+    }
+    // Handle Backspace
+    else if (key === 'Backspace') {
+        display.textContent = display.textContent.slice(0, -1);
+    }
+});
+
+// Function to handle operators in keypress and click events
+function handleOperator(key) {
+    if (num1 == null) {
+        num1 = parseFloat(display.textContent);
+    } else if (display.textContent !== '' && operatorOnDisplay) {
+        num2 = parseFloat(display.textContent);
+        result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
+        display.textContent = result;
+        num1 = result;  // Store result for the next operation
+    }
+    operatorOnDisplay = key;
+    display.textContent = '';
+}
+
+
 
