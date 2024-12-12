@@ -8,20 +8,20 @@ body {
 }
 
 .calculator-body {
+    padding: 20px 60px;
     width: 20rem;
     height: 25rem;
-    margin: 0 auto;
     margin-top: 50px;
-    border: 15px solid #1d3557;
     border-radius: 8px;
 }
 
 .display {
     padding: 44px;
-    width: 14.6rem;
+    width: 14.4rem;
     height: 1.4rem;
     background-color: #c9dbea;
-    border-bottom: 12px solid #1d3557;
+    border-bottom: 10px solid #1d3557;
+    border: 1px solid #1d3557;
     position: relative;
     font-size: 1.5rem;
 }

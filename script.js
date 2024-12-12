@@ -1,156 +1,93 @@
-// Math functions
-function sum(num1, num2) {
+function add (num1, num2) {
     return num1 + num2;
 }
 
-function subtract(num1, num2) {
+function subtract (num1, num2) {
     return num1 - num2;
 }
 
-function divide(num1, num2) {
-    if (num2 === 0) return 'Error'; // Handle division by zero
+function divide (num1, num2) {
     return num1 / num2;
 }
 
-function multiply(num1, num2) {
+function multiply (num1, num2) {
     return num1 * num2;
-}
-
-function modulus(num1, num2) {
-    return num1 % num2;
 }
 
 function operate(num1, operator, num2) {
     return operator(num1, num2);
 }
 
-// DOM Manipulation
-let display = document.querySelector(".display");
-let numbers = document.querySelectorAll(".number");
-let operators = document.querySelectorAll(".operator");
-let evaluate = document.querySelector(".evaluate");
-
-let num1 = null;
-let num2 = null;
-let operatorOnDisplay = null;
-let result = null;
-
-// Utility function to map operators
-function getFunctionFromOperator(operatorSymbol) {
-    switch (operatorSymbol) {
-        case 'fa-plus': return sum;
-        case '+': return sum; 
-        case 'fa-minus': return subtract; 
-        case '-': return subtract;
-        case 'fa-xmark': return multiply;
-        case '*': return multiply; 
-        case 'fa-divide': return divide;
-        case '/': return divide;
-        case 'fa-percent': return modulus;
-        case '%': return modulus;
-    }
-}
-
-// Update the display with the pressed number
 function getNumber(buttonText) {
-    display.textContent += buttonText;
+    calcScreen.textContent += buttonText;
 }
 
-// Number button click event
+let calcScreen = document.querySelector(".display");
+let numbers = document.querySelectorAll(".number");
+
 numbers.forEach(number => {
     number.addEventListener("click", function() {
         getNumber(this.textContent);
-    });
-});
+    })
+})
 
-// Operator button click event
-operators.forEach(operator => {
-    operator.addEventListener("click", function() {
-        if (display.textContent !== '') {
-            if (num1 !== null && operatorOnDisplay) {
-                
-                num2 = parseFloat(display.textContent);
-                result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
-                display.textContent = result;
-                num1 = result; 
-            } else {
-                num1 = parseFloat(display.textContent); // First number
-            }
+let operators = document.querySelectorAll(".operator");
+let num1 = null;
+let num2 = null;
+let operatorOnDisplay = null;
 
-            
-            operatorOnDisplay = this.querySelector('i').classList[1]; // Get the second class of <i> (icon class)
-            display.textContent = ''; // Clear display for next input
-        }
-    });
-});
-
-// Evaluate button click event
-evaluate.addEventListener("click", function() {
-    if (display.textContent !== '' && num1 !== null && operatorOnDisplay) {
-        num2 = parseFloat(display.textContent);
-        result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
-        display.textContent = result; 
-        num1 = result; // Store the result for further operations
-        operatorOnDisplay = null; // Reset the operator
+function getFunction(selectOperator) {
+    switch(selectOperator) {
+        case 'fa-plus': return add;
+        case 'fa-minus': return subtract;
+        case 'fa-xmark': return multiply;
+        case 'fa-divide': return divide;
+        default: return null;
     }
-});
-
-let functions = document.querySelectorAll(".func");
-
-functions.forEach(func => {
-    func.addEventListener("click", function() {
-        if(this.textContent == "AC") {
-            display.textContent = '';
-            num1 = null;
-            num2 = null;
-            operatorOnDisplay = null;
-        } else if (this.querySelector('.fa-delete-left')) {
-            display.textContent = display.textContent.slice(0, -1);
-        }
-    });
-});
-
-// KeyBoard Events...
-document.addEventListener("keydown", function(event) {
-    const key = event.key;
-
-    // Handle number and decimal point
-    if (!isNaN(key) || key === '.') {
-        display.textContent += key;
-    } 
-    // Handle operators
-    else if (['+', '-', '*', '/', '%'].includes(key)) {
-        handleOperator(key);
-    }
-    // Handle Enter
-    else if (key === 'Enter') {
-        if (num1 != null && operatorOnDisplay && display.textContent !== '') {
-            num2 = parseFloat(display.textContent);
-            result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
-            display.textContent = result;
-            num1 = result;
-            operatorOnDisplay = null;
-        }
-    }
-    // Handle Backspace
-    else if (key === 'Backspace') {
-        display.textContent = display.textContent.slice(0, -1);
-    }
-});
-
-// Function to handle operators in keypress and click events
-function handleOperator(key) {
-    if (num1 == null) {
-        num1 = parseFloat(display.textContent);
-    } else if (display.textContent !== '' && operatorOnDisplay) {
-        num2 = parseFloat(display.textContent);
-        result = operate(num1, getFunctionFromOperator(operatorOnDisplay), num2);
-        display.textContent = result;
-        num1 = result;  // Store result for the next operation
-    }
-    operatorOnDisplay = key;
-    display.textContent = '';
 }
 
+operators.forEach(operator => {
+    operator.addEventListener("click", function() {
+        if (calcScreen.textContent !== '') {
+            if (num1 === null) {
+                num1 = parseFloat(calcScreen.textContent); // First number
+            } else if (operatorOnDisplay !== null) {
+                num2 = parseFloat(calcScreen.textContent); // Second number
+                let result = operate(num1, operatorOnDisplay, num2);
+                calcScreen.textContent = result;  // Update screen with result
+                num1 = result;  // Store result for further operations
+            }
+            // Clear screen for the next number
+            calcScreen.textContent = ''; 
 
+            // Get the correct operator function by class
+            operatorOnDisplay = getFunction(this.querySelector('i').classList[1]);
+        }
+    });
+});
+
+let result;
+let equals = document.querySelector(".evaluate");
+equals.addEventListener("click", function() {
+    if (calcScreen.textContent !== '') {
+        num2 = parseFloat(calcScreen.textContent);
+        let result = operate(num1, operatorOnDisplay, num2);
+        calcScreen.textContent = result;  // Show the result
+        num1 = result;  // Store result for the next calculation
+        operatorOnDisplay = null;  // Reset operator for next operation
+    }
+});
+
+let clear = document.querySelector(".clear");
+clear.addEventListener("click", function() {
+    calcScreen.textContent = calcScreen.textContent.slice(0, -1);
+})
+
+let reset = document.querySelector(".reset");
+reset.addEventListener("click", function() {
+    calcScreen.textContent = '';
+    num1 = null;
+    num2 = null;
+    operatorOnDisplay = null;
+})
 
